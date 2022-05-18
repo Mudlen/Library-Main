@@ -1,0 +1,14 @@
+.search-visible-true{
+    display: table-row;
+}
+.search-visible-false{
+    display: none;
+}
+
+.hover-cursor{
+    cursor: pointer;
+}
+
+.search-input{
+
+}

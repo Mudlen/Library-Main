@@ -1,0 +1,173 @@
+openapi: 3.0.3
+info:
+  title: 'Library/Storage REST API'
+  description: REST API for download and upload files.
+  version: 1.0.0
+servers:
+  - url: 'http://localhost:8080/api/library-storage/1.0.0'
+tags:
+  - name: Public Api
+    description: Методы доступные всем
+paths:
+  /library/book:
+    get:
+      tags:
+        - Public Api
+      summary: Returns all books as list.
+      operationId: getListBooks
+      responses:
+        200:
+          description: A JSON array of books with full data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListBookDtoFull'
+        400:
+          description: Bad request. Incorrect synataxis!
+          content:
+            application/json:
+              schema:
+                type: string
+        500:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                type: string
+
+  /library/book/{id}:
+    get:
+      tags:
+        - Public Api
+      summary: Returns one of book
+      operationId: getBook
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: book UUID
+          schema:
+            $ref: '#/components/schemas/UUID'
+      responses:
+        200:
+          description: Single book
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookDtoFull'
+        400:
+          description: Bad request. Incorrect synataxis!
+          content:
+            application/json:
+              schema:
+                type: string
+        404:
+          description: Book not found
+          content:
+            application/json:
+              schema:
+                type: string
+        500:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                type: string
+  /storage/book:
+    post:
+      tags:
+        - Public Api
+      summary: Upload file in local storage
+      operationId: uploadFile
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - file
+              properties:
+                file:
+                  $ref: '#/components/schemas/PdfFile'
+      responses:
+        200:
+          description: file uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: string
+        500:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                type: string
+  /storage/book/{id}:
+    get:
+      tags:
+        - Public Api
+      summary: Download file by UUID
+      operationId: downloadFile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Bool uuid
+          schema:
+            $ref: '#/components/schemas/UUID'
+      responses:
+        200:
+          description: File dowloaded
+          content:
+            application/octet-stream:
+              schema:
+                $ref: '#/components/schemas/PdfFile'
+        400:
+          description: Bad request. Incorrect synataxis!
+          content:
+            application/json:
+              schema:
+                type: string
+        404:
+          description: Book not found
+          content:
+            application/json:
+              schema:
+                type: string
+        500:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                type: string
+components:
+  schemas:
+    PdfFile:
+      type: string
+      format: binary
+
+    UUID:
+      type: string
+      format: uuid
+
+    BookDtoFull:
+      type: object
+      required:
+        - id
+        - simpleName
+        - format
+        - static_path
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        simpleName:
+          type: string
+        format:
+          type: string
+        path:
+          type: string
+
+    ListBookDtoFull:
+      type: array
+      items:
+        $ref: '#/components/schemas/BookDtoFull'
+  

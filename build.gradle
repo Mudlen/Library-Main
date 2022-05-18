@@ -1,0 +1,74 @@
+plugins {
+    id 'org.springframework.boot' version '2.6.7'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+    id 'org.openapi.generator' version '5.3.1'
+    id "io.swagger.core.v3.swagger-gradle-plugin" version "2.2.0"
+}
+
+group = 'com.main'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.0'
+    implementation 'io.swagger:swagger-annotations:1.6.6'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    compileOnly 'org.mapstruct:mapstruct:1.4.2.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.4.2.Final'
+    runtimeOnly 'org.postgresql:postgresql'
+}
+
+openApiGenerate {
+    generatorName = "spring"
+    inputSpec = "$projectDir/library-project.yaml"
+    apiPackage = "com.main.library.api"
+    modelPackage = "com.main.library.data.dto"
+    configOptions = [
+            dateLibrary: "java17",
+            interfaceOnly: "true",
+            unhandledException: "true",
+            invoker : "false",
+            generateSupportingFiles: "true",
+            openApiNullable: "false",
+            skipDefaultInterface: "true",
+
+    ]
+    globalProperties = [
+            apis: "",
+            models: ""
+    ]
+}
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java', 'build/generate-resources/main/src/main/java']
+        }
+        resources {
+            srcDirs = ['src/main/resources', 'build/generate-resources/main/src/main/resources']
+        }
+    }
+}
+
+compileJava.dependsOn tasks.openApiGenerate
+processResources.dependsOn tasks.openApiGenerate
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
